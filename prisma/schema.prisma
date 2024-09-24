@@ -36,7 +36,6 @@ model CustomForm {
   title           String
   description     String
   inputHeading    String
-  inputPlaceholder String
   submitButtonText String
   customCss       String
   couponPrefix    String

@@ -19,3 +19,17 @@ export async function createCustomForm(data) {
 export async function getCustomForms() {
   return prisma.customForm.findMany();
 }
+
+export async function updateCustomForm(id, data) {
+  return prisma.customForm.update({
+    where: { id: parseInt(id) },
+    data,
+  });
+}
+
+export async function deleteCustomForm(id) {
+  console.log("Deleting form with id:", id); // Debugging log
+  return prisma.customForm.delete({
+    where: { id: parseInt(id) },
+  });
+}

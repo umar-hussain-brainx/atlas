@@ -1,5 +1,5 @@
 import { json, redirect } from "@remix-run/node";
-import { createCustomForm, getCustomForms } from "../db.server";
+import { createCustomForm, getCustomForms, updateCustomForm, deleteCustomForm } from "../db.server";
 
 export const loader = async () => {
   const forms = await getCustomForms();
@@ -9,27 +9,31 @@ export const loader = async () => {
 
 export const action = async ({ request }) => {
   const formData = await request.formData();
-  const title = formData.get("title");
-  const description = formData.get("description");
-  const inputHeading = formData.get("inputHeading");
-  const inputPlaceholder = formData.get("inputPlaceholder");
-  const submitButtonText = formData.get("submitButtonText");
-  const customCss = formData.get("customCss");
-  const couponPrefix = formData.get("couponPrefix");
-  const couponPostfix = formData.get("couponPostfix");
+  const action = formData.get("action");
 
-  console.log("Form data received:", { title, description, inputHeading, inputPlaceholder, submitButtonText, customCss, couponPrefix, couponPostfix }); // Debugging log
+  switch (action) {
+    case "create":
+    case "update":
+      const formFields = [
+        "title", "description", "inputHeading", "submitButtonText",
+        "customCss", "couponPrefix", "couponPostfix"
+      ];
+      const data = Object.fromEntries(
+        formFields.map(field => [field, formData.get(field)])
+      );
+      if (action === "create") {
+        await createCustomForm(data);
+      } else {
+        const id = formData.get("id");
+        await updateCustomForm(id, data);
+      }
+      break;
+    case "delete":
+      const id = formData.get("id");
+      console.log("Deleting form with id:", id); // Debugging log
+      await deleteCustomForm(id);
+      break;
+  }
 
-  await createCustomForm({
-    title,
-    description,
-    inputHeading,
-    inputPlaceholder,
-    submitButtonText,
-    customCss,
-    couponPrefix,
-    couponPostfix,
-  });
-
-  return redirect("/webhooks/customers/redact");
+  return json({ success: true });
 };
