@@ -59,7 +59,7 @@ export default function Index() {
             <Card sectioned>
               <BlockStack gap="500">
                 <Button primary>
-                  <Link to="/forms/new">Create New Form</Link>
+                  <Link to="/app/forms/new">Create New Form</Link>
                 </Button>
               </BlockStack>
             </Card>
@@ -75,7 +75,7 @@ export default function Index() {
                       <Text as="p">{form.description}</Text>
                       <ButtonGroup>
                         <Button>
-                          <Link to={`/forms/${form.id}/edit`}>Edit</Link>
+                          <Link to={`/app/forms/${form.id}/edit`}>Edit</Link>
                         </Button>
                         <Button destructive onClick={() => handleDelete(form.id)}>Delete</Button>
                       </ButtonGroup>

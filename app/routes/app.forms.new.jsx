@@ -39,7 +39,7 @@ export const action = async ({ request }) => {
   );
 
   await createCustomForm(data);
-  return redirect("/");
+  return redirect("/app"); // Redirect to the main page after form creation
 };
 
 export default function NewForm() {

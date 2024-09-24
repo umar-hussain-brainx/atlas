@@ -13,14 +13,14 @@ import {
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
-import { getCustomForm, updateCustomForm } from "../db.server";
+import { getCustomForms, updateCustomForm } from "../db.server";
 
 export const loader = async ({ request, params }) => {
   const authHeader = await authenticate.admin(request);
   if (!authHeader) {
     return redirect("/auth");
   }
-  const form = await getCustomForm(params.id);
+  const form = await getCustomForms(params.id);
   return json({ form });
 };
 
@@ -40,7 +40,7 @@ export const action = async ({ request, params }) => {
   );
 
   await updateCustomForm(params.id, data);
-  return redirect("/");
+  return redirect("/app");
 };
 
 export default function EditForm() {
@@ -75,7 +75,36 @@ export default function EditForm() {
                     value={formState.title}
                     onChange={handleChange("title")}
                   />
-                  {/* Add other form fields here */}
+                  <TextField
+                    label="Form Description"
+                    value={formState.description}
+                    onChange={handleChange("description")}
+                  />
+                  <TextField
+                    label="Input Heading"
+                    value={formState.inputHeading}
+                    onChange={handleChange("inputHeading")}
+                  />
+                  <TextField
+                    label="Submit Button Text"
+                    value={formState.submitButtonText}
+                    onChange={handleChange("submitButtonText")}
+                  />
+                  <TextField
+                    label="Custom CSS"
+                    value={formState.customCss}
+                    onChange={handleChange("customCss")}
+                  />
+                  <TextField
+                    label="Coupon Prefix"
+                    value={formState.couponPrefix}
+                    onChange={handleChange("couponPrefix")}
+                  />
+                  <TextField
+                    label="Coupon Postfix"
+                    value={formState.couponPostfix}
+                    onChange={handleChange("couponPostfix")}
+                  />
                   <Button primary submit>
                     Update Form
                   </Button>
