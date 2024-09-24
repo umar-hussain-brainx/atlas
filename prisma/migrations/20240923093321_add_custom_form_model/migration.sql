@@ -10,9 +10,10 @@ CREATE TABLE "CustomForm" (
     "title" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "inputHeading" TEXT NOT NULL,
-    "inputPlaceholder" TEXT NOT NULL,
     "submitButtonText" TEXT NOT NULL,
     "customCss" TEXT NOT NULL,
+    "couponPrefix" TEXT NOT NULL,
+    "couponPostfix" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
 );
