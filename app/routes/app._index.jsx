@@ -100,7 +100,7 @@ export default function Index() {
           <Layout>
             <Layout.Section>
               <Card sectioned>
-                <BlockStack gap="200">
+                <BlockStack gap="200" >
                   <Text as="h3" variant="headingLg">Existing Forms</Text>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "20px" }}>
                     {forms.map((form) => (
@@ -137,17 +137,18 @@ export default function Index() {
                               plain
                               icon={ClipboardIcon}
                               tone="base"
-                              onClick={() => copyToClipboard(form.id)}
+                              onClick={() => copyToClipboard(`<div class="atlasAppTrigger" data-id="${form.id}"></div>`)}
                               style={{ cursor: 'pointer' }}
                               aria-label={`Copy ID: ${form.id}`}
                             />
                             </div>
                           </div>
-                          <div>
+                          <div style={{width: "90%",minHeight:"80px"}} >
                             <Text as="h4" variant="headingMd">{form.title}</Text>
-                          </div>
+                                
                           <Text as="p">{form.description}</Text>
-                        </BlockStack>
+                          </div>
+                        </BlockStack> 
                       </Card>
                     ))}
                   </div>
