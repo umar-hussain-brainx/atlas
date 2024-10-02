@@ -11,6 +11,14 @@ if (process.env.NODE_ENV !== "production") {
 
 export default prisma;
 
+
+export async function getCustomFormById(formId) {
+  return prisma.customForm.findUnique({
+    where: { id: formId },
+  });
+}
+
+
 export async function createCustomForm(data) {
   return prisma.customForm.create({
     data,
