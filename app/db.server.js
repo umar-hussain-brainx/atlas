@@ -21,7 +21,11 @@ export async function getCustomFormById(formId) {
 
 export async function createCustomForm(data) {
   return prisma.customForm.create({
-    data,
+    data: {
+      ...data,
+      discountId: data.discountId || null,
+      segmentId: data.segmentId || null,
+    },
   });
 }
 
@@ -32,7 +36,11 @@ export async function getCustomForms() {
 export async function updateCustomForm(id, data) {
   return prisma.customForm.update({
     where: { id },
-    data,
+    data: {
+      ...data,
+      discountId: data.discountId || undefined,
+      segmentId: data.segmentId || undefined,
+    },
   });
 }
 
@@ -50,34 +58,35 @@ export async function createDiscountCodeWithSegment(admin, newForm) {
 
   try {
     // Step 1: Create a customer segment
-    const createSegmentMutation = `
-    mutation segmentCreate($name: String!, $query: String!) {
-      segmentCreate(name: $name, query: $query) {
-        segment {
-          id
-        }
-        userErrors {
-          field
-          message
-        }
-      }
-    }`;
+    // const createSegmentMutation = `
+    // mutation segmentCreate($name: String!, $query: String!) {
+    //   segmentCreate(name: $name, query: $query) {
+    //     segment {
+    //       id
+    //     }
+    //     userErrors {
+    //       field
+    //       message
+    //     }
+    //   }
+    // }`;
 
-    const segmentResponse = await admin.graphql(createSegmentMutation, {
-      variables: {
-        name: `${newForm.title}`,
-        query: "customer_tags CONTAINS 'Guest'",
-      },
-    });
+    // const segmentResponse = await admin.graphql(createSegmentMutation, {
+    //   variables: {
+    //     name: `${newForm.title}`,
+    //     query: "customer_tags CONTAINS 'Guest'",
+    //   },
+    // });
 
-    const responseJson = await segmentResponse.json();
-    console.log(responseJson);
+    // const responseJson = await segmentResponse.json();
+    // console.log(responseJson);
 
     // Step 2: Create a discount code for the price rule
     const createDiscountCodeMutation = `
       mutation discountCodeBasicCreate($basicCodeDiscount: DiscountCodeBasicInput!) {
         discountCodeBasicCreate(basicCodeDiscount: $basicCodeDiscount) {
           codeDiscountNode {
+            id
             codeDiscount {
               ... on DiscountCodeBasic {
                 title
@@ -128,6 +137,7 @@ export async function createDiscountCodeWithSegment(admin, newForm) {
       variables: {
         basicCodeDiscount: {
           title: `${newForm.title}`,
+          code: `${newForm.couponPrefix}${newForm.couponPostfix}`,
           startsAt: new Date().toISOString(), // Set to current date/time
           customerSelection: {
             all: true,
@@ -138,12 +148,33 @@ export async function createDiscountCodeWithSegment(admin, newForm) {
       },
     });
 
-    const discountCodeResponseJson = await discountCodeResponse.json();
-    console.log(JSON.stringify(discountCodeResponseJson));
+    const discountCodeResponseJson = await discountCodeResponse.json();    
+    // Extract the discount code ID from the response
+    const discountId = discountCodeResponseJson.data.discountCodeBasicCreate.codeDiscountNode.id;
+    
+    // Update the form with the discount ID
+    await prisma.customForm.update({
+      where: { id: newForm.id },
+      data: { discountId: discountId }
+    });
+    
     return discountCodeResponseJson;
 
   } catch (error) {
-    console.error("Error creating discount code with segment:", error.message);
+    console.error("Error creating discount code with segment:", error);
     throw new Error("An error occurred while creating the discount code with the segment.");
   }
 }
+
+export async function createCustomer({ email, shopifyCustomerId, customFormId }) {
+  return prisma.customer.create({
+    data: {
+      email,
+      shopifyCustomerId,
+      customForm: {
+        connect: { id: customFormId }
+      }
+    },
+  });
+}
+

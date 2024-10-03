@@ -32,16 +32,30 @@ model Session {
 }
 
 model CustomForm {
-  id    String   @id @default(uuid())
-  title           String
-  description     String
-  inputHeading    String
-  submitButtonText String
-  customCss       String
-  couponPrefix    String
-  couponPostfix   String
-  discountType    String?
-  discountValue   String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                String     @id @default(uuid())
+  title             String
+  description       String
+  inputHeading      String
+  submitButtonText  String
+  customCss         String
+  couponPrefix      String
+  couponPostfix     String
+  discountType      String?
+  discountValue     String?
+  discountId        String?    // New field
+  segmentId         String?    // New field
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  customers         Customer[]  // Add this line to create the relation
+}
+
+model Customer {
+  id                String     @id @default(cuid())
+  name              String?
+  email             String     @unique
+  shopifyCustomerId String     @unique
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  customFormId      String     // Add this line
+  customForm        CustomForm @relation(fields: [customFormId], references: [id])  // Add this line
 }

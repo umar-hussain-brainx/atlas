@@ -1,9 +1,10 @@
-
 import { getCustomFormById } from "../db.server"; // Import the correct function
+import { authenticate } from "../shopify.server";
 
 export const loader = async ({ request }) => {
 
-  console.log("request", request);
+
+
   const responseHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
@@ -21,18 +22,13 @@ export const loader = async ({ request }) => {
     });
   }
 
-  // const { admin } = await authenticate.admin(request);
-
-  // if (!admin) {
-  //   const unauthorizedData = {
-  //     message: 'Unauthorized',
-  //   };
-
-  //   return new Response(JSON.stringify(unauthorizedData), {
-  //     status: 401, // Unauthorized
-  //     headers: responseHeaders,
-  //   });
-  // }
+  const { admin } = await authenticate.public.appProxy(request);
+  if (!admin) {
+    return new Response(JSON.stringify({ message: 'Unauthorized' }), {
+      status: 401,
+      headers: responseHeaders,
+    });
+  }
 
   const url = new URL(request.url);
   const formId = url.searchParams.get("formId");

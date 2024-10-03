@@ -22,7 +22,8 @@ module.exports = {
   ],
   routes(defineRoutes) {
     return defineRoutes((route) => {
-      route("/api/getFormData", "routes/api.getFormData.jsx");
+      route("/app/atlas", "routes/api.atlas.jsx");
+      route("/app/atlas/submitForm", "routes/api.atlas.submitForm.jsx");
     });
   }
 
