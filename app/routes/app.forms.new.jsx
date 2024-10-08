@@ -29,7 +29,8 @@ export const loader = async ({ request }) => {
 
 // Action for handling form submission
 export const action = async ({ request }) => {
-  const { admin } = await authenticate.admin(request);
+  const { admin, session } = await authenticate.admin(request);
+  const shop = session.shop;
 
   const formData = await request.formData();
   const formFields = [
@@ -50,15 +51,10 @@ export const action = async ({ request }) => {
   );
   const uuid = uuidv4();
   data.id = uuid; // Add UUID to the form data
-
+  data.shop = shop;
   try {
     // Create the custom form in the database
     const newForm = await createCustomForm(data);
-
-    console.log("newForm", newForm);
-
-    const segmentName = `Form ${newForm.id} Subscribers`;
-
     await createDiscountCodeWithSegment(admin, newForm);
 
     return redirect("/app");

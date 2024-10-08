@@ -33,6 +33,7 @@ model Session {
 
 model CustomForm {
   id                String     @id @default(uuid())
+  shop        String
   title             String
   description       String
   inputHeading      String
@@ -46,16 +47,15 @@ model CustomForm {
   segmentId         String?    // New field
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
-  customers         Customer[]  // Add this line to create the relation
+  customers         Customer[] 
 }
 
 model Customer {
-  id                String     @id @default(cuid())
-  name              String?
-  email             String     @unique
-  shopifyCustomerId String     @unique
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
-  customFormId      String     // Add this line
-  customForm        CustomForm @relation(fields: [customFormId], references: [id])  // Add this line
+  id                String       @id @default(uuid())
+  email             String
+  shopifyCustomerId String
+  shop              String
+  customForms       CustomForm[]
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
 }

@@ -52,36 +52,9 @@ export async function deleteCustomForm(id) {
 }
 
 export async function createDiscountCodeWithSegment(admin, newForm) {
-  console.log("newForm", newForm);
-  console.log("Discount Type:", newForm.discountType);
-  console.log("Discount Value:", newForm.discountValue);
 
   try {
-    // Step 1: Create a customer segment
-    // const createSegmentMutation = `
-    // mutation segmentCreate($name: String!, $query: String!) {
-    //   segmentCreate(name: $name, query: $query) {
-    //     segment {
-    //       id
-    //     }
-    //     userErrors {
-    //       field
-    //       message
-    //     }
-    //   }
-    // }`;
 
-    // const segmentResponse = await admin.graphql(createSegmentMutation, {
-    //   variables: {
-    //     name: `${newForm.title}`,
-    //     query: "customer_tags CONTAINS 'Guest'",
-    //   },
-    // });
-
-    // const responseJson = await segmentResponse.json();
-    // console.log(responseJson);
-
-    // Step 2: Create a discount code for the price rule
     const createDiscountCodeMutation = `
       mutation discountCodeBasicCreate($basicCodeDiscount: DiscountCodeBasicInput!) {
         discountCodeBasicCreate(basicCodeDiscount: $basicCodeDiscount) {
@@ -166,15 +139,95 @@ export async function createDiscountCodeWithSegment(admin, newForm) {
   }
 }
 
-export async function createCustomer({ email, shopifyCustomerId, customFormId }) {
+export async function createCustomer({ email, shopifyCustomerId, shop, formId }) {
+  const customerData = {
+    email,
+    shopifyCustomerId,
+    shop,
+  };
+
+  if (formId) {
+    customerData.customForms = {
+      connect: [{ id: formId }]  // Use an array here to connect the custom form
+    };
+  }
+
   return prisma.customer.create({
-    data: {
-      email,
-      shopifyCustomerId,
-      customForm: {
-        connect: { id: customFormId }
+    data: customerData,
+  });
+}
+
+
+export async function findCustomerByEmailAndShop(email, shop) {
+  return prisma.customer.findFirst({
+    where: {
+      email: email,
+      shop: shop,
+    },
+  });
+}
+
+export async function findCustomerByEmailShopAndFormId(email, shop, formId) {
+  return prisma.customer.findFirst({
+    where: {
+      email: email,
+      shop: shop,
+      customForms: {
+        some: {
+          id: formId
+        }
       }
     },
   });
 }
 
+export async function addCustomerToForm(customerId, formId) {
+  return prisma.customer.update({
+    where: { id: customerId },
+    data: {
+      customForms: {
+        connect: { id: formId }
+      }
+    }
+  });
+}
+
+export async function createCustomer({ email, shopifyCustomerId, shop, formId }) {
+  const customerData = {
+    email,
+    shopifyCustomerId,
+    shop,
+  };
+
+  if (formId) {
+    customerData.customForms = {
+      connect: { id: formId }
+    };
+  }
+
+  return prisma.customer.create({
+    data: customerData,
+  });
+}
+
+export async function findCustomerByEmailAndFormId(email, formId) {
+  return prisma.customer.findFirst({
+    where: {
+      email: email,
+      customFormId: formId,
+    },
+  });
+}
+
+export async function updateSegmentId(formId, segmentId) {
+  try {
+    const updatedForm = await prisma.customForm.update({
+      where: { id: formId },
+      data: { segmentId: segmentId },
+    });
+    return updatedForm;
+  } catch (error) {
+    console.error("Error updating segmentId:", error);
+    throw error;
+  }
+}

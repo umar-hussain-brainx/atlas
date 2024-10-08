@@ -30,7 +30,7 @@ async function fetchFormData(formId) {
     event.preventDefault();
     const form = event.target;
     const formData = new FormData(form);
-  
+    const data = Object.fromEntries(formData.entries());
     try {
       const response = await fetch(`https://${shop}/apps/atlas-proxy/submitform`, {
         method: 'POST',
@@ -39,9 +39,7 @@ async function fetchFormData(formId) {
           'Content-Type': 'application/json',
           "ngrok-skip-browser-warning": true,
         },
-        body: JSON.stringify({
-          ...Object.fromEntries(formData),
-        }),
+        body: JSON.stringify(data),
       });
 
       if (!response.ok) {
@@ -82,7 +80,6 @@ async function fetchFormData(formId) {
   
     for (const trigger of appTriggers) {
       const formId = trigger.getAttribute('data-id'); // Ensure this is defined
-      console.log('Fetching form data for ID:', formId);
       if (formId) {
         const data = await fetchFormData(formId); // Correctly use formId here
   

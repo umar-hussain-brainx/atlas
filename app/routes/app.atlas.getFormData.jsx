@@ -3,8 +3,6 @@ import { authenticate } from "../shopify.server";
 
 export const loader = async ({ request }) => {
 
-
-
   const responseHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
@@ -32,7 +30,6 @@ export const loader = async ({ request }) => {
 
   const url = new URL(request.url);
   const formId = url.searchParams.get("formId");
-  console.log("formId", formId);
 
   try {
     const formData = await getCustomFormById(formId); // Fetch a single form by ID

@@ -3,7 +3,7 @@
 client_id = "4a366f9df9378b70045b48f718f5dd98"
 name = "atlasheadrest"
 handle = "atlasheadrest"
-application_url = "https://5732-122-129-85-58.ngrok-free.app"
+application_url = "https://active-tones-view-approximately.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_customers,read_discounts,write_customers,write_discounts,write_pr
 
 [auth]
 redirect_urls = [
-  "https://5732-122-129-85-58.ngrok-free.app/auth/callback",
-  "https://5732-122-129-85-58.ngrok-free.app/auth/shopify/callback",
-  "https://5732-122-129-85-58.ngrok-free.app/api/auth/callback"
+  "https://active-tones-view-approximately.trycloudflare.com/auth/callback",
+  "https://active-tones-view-approximately.trycloudflare.com/auth/shopify/callback",
+  "https://active-tones-view-approximately.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
@@ -37,12 +37,8 @@ api_version = "2024-07"
   uri = "https://f48e-122-129-85-58.ngrok-free.app/webhooks/shop/redact"
   compliance_topics = [ "shop/redact" ]
 
-  [[webhooks.subscriptions]]
-  topics = [ "app/uninstalled" ]
-  uri = "https://f48e-122-129-85-58.ngrok-free.app/webhooks/app/uninstalled"
-
 [app_proxy]
-url = "https://5732-122-129-85-58.ngrok-free.app/app/atlas"
+url = "https://active-tones-view-approximately.trycloudflare.com/app/atlas"
 subpath = "atlas-proxy"
 prefix = "apps"
 
