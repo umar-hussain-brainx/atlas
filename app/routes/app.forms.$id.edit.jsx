@@ -63,7 +63,7 @@ export default function EditForm() {
       title="Edit Form"
       primaryAction={{
         content: "Back",
-        url: `/app/`,
+        url: `/app/forms`,
       }}
     >
   

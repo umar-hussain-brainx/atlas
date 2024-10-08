@@ -2,9 +2,6 @@ import { getCustomFormById } from "../db.server"; // Import the correct function
 import { authenticate } from "../shopify.server";
 
 export const loader = async ({ request }) => {
-
-
-
   const responseHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
@@ -15,7 +12,6 @@ export const loader = async ({ request }) => {
       message: 'Method not allowed',
     };
 
-    
     return new Response(JSON.stringify(failedResponseData), {
       status: 405, // Method Not Allowed
       headers: responseHeaders,
@@ -31,14 +27,24 @@ export const loader = async ({ request }) => {
   }
 
   const url = new URL(request.url);
-  const formId = url.searchParams.get("formId");
-  console.log("formId", formId);
+  const formId = url.searchParams.get("af");
+
+  // Check if formId is missing
+  if (!formId) {
+    return new Response(JSON.stringify({ message: "Form ID is required" }), {
+      status: 400, // Bad Request
+      headers: responseHeaders,
+    });
+  }
 
   try {
     const formData = await getCustomFormById(formId); // Fetch a single form by ID
 
     if (!formData) {
-      throw new Response("Form not found", { status: 404 });
+      return new Response(JSON.stringify({ message: "Form not found" }), {
+        status: 404, // Not Found
+        headers: responseHeaders,
+      });
     }
 
     const formHTML = `
@@ -49,15 +55,13 @@ export const loader = async ({ request }) => {
           <button type="submit">${formData.submitButtonText}</button>
         </form>
         <style>${formData.customCss}</style>`;
-        
-    return new Response(JSON.stringify({formHTML}), {
+
+    return new Response(JSON.stringify({ formHTML }), {
       status: 200, // OK
       headers: responseHeaders,
     });
 
-
   } catch (error) {
-
     console.error('Error fetching form data:', error);
     const failedResponseData = {
       message: 'Error fetching form data',
@@ -65,7 +69,7 @@ export const loader = async ({ request }) => {
     };
 
     return new Response(JSON.stringify(failedResponseData), {
-      status: 500,
+      status: 500, // Internal Server Error
       headers: responseHeaders,
     });
   }

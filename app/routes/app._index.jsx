@@ -137,7 +137,7 @@ export default function Index() {
                               plain
                               icon={ClipboardIcon}
                               tone="base"
-                              onClick={() => copyToClipboard(`<div class="atlasAppTrigger" data-id="${form.id}"></div>`)}
+                              onClick={() => copyToClipboard(`${shopUrl}/pages/affiliate?af=${form.id}`)}
                               style={{ cursor: 'pointer' }}
                               aria-label={`Copy ID: ${form.id}`}
                             />

@@ -109,21 +109,8 @@ export default function NewForm() {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    setErrorMessage(null);
-    setValidationError(null); // Reset validation error
+    
 
-    const { discountType, discountValue } = formState;
-
-    // Validate discount value based on the discount type
-    if (discountType === "percentage") {
-      const value = parseFloat(discountValue);
-      if (value < 0.1 || value > 1.0) {
-        setValidationError("Discount percentage must be between 0.1 and 1.0.");
-        setIsSubmitting(false);
-        return; // Stop the submission
-      }
-    }
 
     try {
       await fetcher.submit(formState, { method: "post" });
@@ -253,11 +240,6 @@ export default function NewForm() {
                       formState.discountType === "percentage" ? "%" : "$"
                     }
                   />
-                  {formState.discountType === "percentage" && validationError && (
-                    <Text color="critical" style={{ marginTop: '5px', color: "red" }}>
-                      {validationError}
-                    </Text>
-                  )}
                 </FormLayout.Group>
               )}
 

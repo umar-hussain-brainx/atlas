@@ -110,7 +110,7 @@ export async function createDiscountCodeWithSegment(admin, newForm) {
     if (discountType === 'percentage') {
       customerGetsValue = {
         value: {
-          percentage: parseFloat(newForm.discountValue),
+          percentage: parseFloat(newForm.discountValue) / 100,
         },
         items: {
           all: true,
@@ -174,6 +174,15 @@ export async function createCustomer({ email, shopifyCustomerId, customFormId })
       customForm: {
         connect: { id: customFormId }
       }
+    },
+  });
+}
+
+export async function findCustomerByEmailAndFormId(email, formId) {
+  return prisma.customer.findFirst({
+    where: {
+      email: email,
+      customFormId: formId,
     },
   });
 }
