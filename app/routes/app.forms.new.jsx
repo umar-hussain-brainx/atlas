@@ -45,13 +45,21 @@ export const action = async ({ request }) => {
     "discountValue",
   ];
 
-  // Collect form data
-  const data = Object.fromEntries(
+   // Collect form data
+   const data = Object.fromEntries(
     formFields.map((field) => [field, formData.get(field)])
   );
+
+  // Convert empty strings to null
+  Object.keys(data).forEach(key => {
+    if (data[key] === "") {
+      data[key] = " ";
+    }
+  });
   const uuid = uuidv4();
   data.id = uuid; // Add UUID to the form data
   data.shop = shop;
+
   try {
     // Create the custom form in the database
     const newForm = await createCustomForm(data);
@@ -239,7 +247,7 @@ export default function NewForm() {
                 </FormLayout.Group>
               )}
 
-                  <Button variant="primary" submit  loading={isLoading} disabled={isSubmitting}>
+                  <Button variant="primary" submit disabled={isSubmitting}>
                     {isSubmitting ? "Creating..." : "Create Form"}
                   </Button>
                 </FormLayout>

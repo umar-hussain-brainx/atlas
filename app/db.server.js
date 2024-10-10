@@ -18,7 +18,6 @@ export async function getCustomFormById(formId) {
   });
 }
 
-
 export async function createCustomForm(data) {
   return prisma.customForm.create({
     data: {
@@ -38,8 +37,6 @@ export async function updateCustomForm(id, data) {
     where: { id },
     data: {
       ...data,
-      discountId: data.discountId || undefined,
-      segmentId: data.segmentId || undefined,
     },
   });
 }
@@ -138,25 +135,6 @@ export async function createDiscountCodeWithSegment(admin, newForm) {
     throw new Error("An error occurred while creating the discount code with the segment.");
   }
 }
-
-export async function createCustomer({ email, shopifyCustomerId, shop, formId }) {
-  const customerData = {
-    email,
-    shopifyCustomerId,
-    shop,
-  };
-
-  if (formId) {
-    customerData.customForms = {
-      connect: [{ id: formId }]  // Use an array here to connect the custom form
-    };
-  }
-
-  return prisma.customer.create({
-    data: customerData,
-  });
-}
-
 
 export async function findCustomerByEmailAndShop(email, shop) {
   return prisma.customer.findFirst({

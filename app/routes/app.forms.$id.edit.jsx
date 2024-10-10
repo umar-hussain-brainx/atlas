@@ -1,9 +1,10 @@
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { useLoaderData, useNavigation, useSubmit } from "@remix-run/react";
 import { Page, Layout, Form, FormLayout, TextField, Button, Card } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
-import { getCustomFormById, updateCustomForm } from "../db.server";
 import { useState } from "react";
+
+import { getCustomFormById, updateCustomForm } from "../db.server";
 
 export const loader = async ({ request, params }) => {
   const { admin } = await authenticate.admin(request);
@@ -19,8 +20,10 @@ export const loader = async ({ request, params }) => {
 
 export const action = async ({ request, params }) => {
   const { admin } = await authenticate.admin(request);
-  const formData = await request.formData();
   const formId = params.id;
+
+  
+  const formData = await request.formData();
 
   const updatedForm = {
     title: formData.get("title"),
@@ -34,9 +37,16 @@ export const action = async ({ request, params }) => {
     discountValue: formData.get("discountValue"),
   };
 
-  await updateCustomForm(formId, updatedForm);
+  try {
+    await updateCustomForm(formId, updatedForm);
+    return redirect("/app");
+  } catch (error) {
+    return json(
+      { error: "An error occurred while creating the form and discount code" },
+      { status: 500 }
+    );
+  } 
 
-  return json({ message: "Form updated successfully" });
 };
 
 export default function EditForm() {
@@ -152,7 +162,7 @@ export default function EditForm() {
                   autoComplete="off"
                 />
                 </FormLayout.Group>
-                <Button submit loading={isLoading}>Update Form</Button>
+                <Button submit variant="primary" loading={isLoading}>Update Form</Button>
               </FormLayout>
             </Form>
           </Card>

@@ -31,13 +31,14 @@ async function fetchFormData(formId) {
       
     event.preventDefault();
     const form = event.target;
+    const loader = form.querySelector('.loader');
+    if (loader) {
+      loader.classList.remove('hide');
+    }
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
-    // const loader = document.querySelector('body .loader');
-    // if (loader) {
-    //   loader.classList.remove('hide');
-    // }
-
+     console.log("form",form)
+    
     try {
 
       const response = await fetch(`https://${shop}/apps/atlas-proxy/submitform`, {
