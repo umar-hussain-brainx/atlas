@@ -5,6 +5,7 @@ import { authenticate } from "../shopify.server";
 import { useState } from "react";
 
 import { getCustomFormById, updateCustomForm } from "../db.server";
+import { updateDiscountMutation } from "../actions/updateDisocunt";
 
 export const loader = async ({ request, params }) => {
   const { admin } = await authenticate.admin(request);
@@ -20,24 +21,29 @@ export const loader = async ({ request, params }) => {
 
 export const action = async ({ request, params }) => {
   const { admin } = await authenticate.admin(request);
-  const formId = params.id;
-
-  
-  const formData = await request.formData();
-
-  const updatedForm = {
-    title: formData.get("title"),
-    description: formData.get("description"),
-    inputHeading: formData.get("inputHeading"),
-    submitButtonText: formData.get("submitButtonText"),
-    customCss: formData.get("customCss"),
-    couponPrefix: formData.get("couponPrefix"),
-    couponPostfix: formData.get("couponPostfix"),
-    discountType: formData.get("discountType"),
-    discountValue: formData.get("discountValue"),
-  };
-
   try {
+    const formId = params.id;
+
+    const formData = await request.formData();
+
+    const updatedForm = {
+      title: formData.get("title"),
+      description: formData.get("description"),
+      inputHeading: formData.get("inputHeading"),
+      submitButtonText: formData.get("submitButtonText"),
+      customCss: formData.get("customCss"),
+      couponPrefix: formData.get("couponPrefix"),
+      couponPostfix: formData.get("couponPostfix"),
+      discountType: formData.get("discountType"),
+      discountValue: formData.get("discountValue"),
+    };
+
+    const form = await getCustomFormById(formId);
+    const { discountType, discountValue } = form
+    if(discountType !== updatedForm.discountType || discountValue !== updatedForm.discountValue){
+      await updateDiscountMutation(admin, form, updatedForm)
+    }
+
     await updateCustomForm(formId, updatedForm);
     return redirect("/app");
   } catch (error) {
