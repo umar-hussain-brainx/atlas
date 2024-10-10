@@ -24,8 +24,9 @@ export const loader = async ({ request }) => {
   if (!authHeader) {
     return redirect("/auth");
   }
+  const shop = authHeader.session.shop
   const forms = await getCustomForms();
-  return json({ forms });
+  return json({ forms, shop });
 };
 
 export const action = async ({ request }) => {
@@ -47,7 +48,7 @@ export const action = async ({ request }) => {
 };
 
 export default function Index() {
-  const { forms } = useLoaderData();
+  const { forms, shop } = useLoaderData();
   const fetcher = useFetcher();
   const [popoverActive, setPopoverActive] = useState(null);
   const [modalActive, setModalActive] = useState(false);
@@ -137,7 +138,7 @@ export default function Index() {
                               plain
                               icon={ClipboardIcon}
                               tone="base"
-                              onClick={() => copyToClipboard(`<div class="atlasAppTrigger" data-id="${form.id}"></div>`)}
+                              onClick={() => copyToClipboard(`${shop}/pages/affiliate?af=${form.id}`)}
                               style={{ cursor: 'pointer' }}
                               aria-label={`Copy ID: ${form.id}`}
                             />
@@ -145,7 +146,6 @@ export default function Index() {
                           </div>
                           <div style={{width: "90%",minHeight:"80px"}} >
                             <Text as="h4" variant="headingMd">{form.title}</Text>
-                                
                           <Text as="p">{form.description}</Text>
                           </div>
                         </BlockStack> 

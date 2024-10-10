@@ -207,9 +207,10 @@ export const action = async ({ request }) => {
     }
 
     // Generate a unique coupon code
-    const timestamp = Date.now().toString(36);
-    const randomString = Math.random().toString(36).substring(2, 7);
-    const uniqueCode = `${customForm.couponPrefix}-${timestamp}-${randomString}-${customForm.couponPostfix}`.toUpperCase();
+    const timestamp = Date.now().toString(36).slice(-5); // Take the last 5 characters of the timestamp
+    const randomString = Math.random().toString(36).substring(2, 3); // Shorten the random string to 1 character
+    const uniqueCode = `${customForm.couponPrefix}-${timestamp}${randomString}-${customForm.couponPostfix}`.toUpperCase();
+
 
     // Create a new coupon code for the customer
     const createCouponCodeMutation = `

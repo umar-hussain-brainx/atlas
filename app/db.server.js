@@ -83,7 +83,7 @@ export async function createDiscountCodeWithSegment(admin, newForm) {
     if (discountType === 'percentage') {
       customerGetsValue = {
         value: {
-          percentage: parseFloat(newForm.discountValue),
+          percentage: parseFloat(newForm.discountValue) / 100,
         },
         items: {
           all: true,

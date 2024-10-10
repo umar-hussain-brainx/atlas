@@ -146,6 +146,8 @@ export default function EditForm() {
                   label="Discount Value"
                   name="discountValue"
                   value={form.discountValue}
+                  min="1"
+                  max="1000"
                   onChange={(value) => handleChange(value, "discountValue")}
                   autoComplete="off"
                 />
