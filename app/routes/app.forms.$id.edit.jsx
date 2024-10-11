@@ -44,7 +44,7 @@ export const action = async ({ request, params }) => {
     if(discountType !== updatedForm.discountType || discountValue !== updatedForm.discountValue){
       await updateDiscountMutation(admin, form, updatedForm)
     }
-   
+    
     await updateCustomForm(formId, updatedForm);
     return redirect("/app");
   } catch (error) {
