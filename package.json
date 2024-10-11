@@ -2,7 +2,7 @@
   "name": "atlas",
   "private": true,
   "scripts": {
-    "build": "remix vite:build",
+    "build": "prisma generate && prisma migrate deploy && remix vite:build",
     "predev": "prisma generate && prisma migrate deploy",
     "dev": "shopify app dev",
     "config:link": "shopify app config link",
