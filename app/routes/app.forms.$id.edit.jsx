@@ -14,7 +14,7 @@ export const loader = async ({ request, params }) => {
 
   if (!form) {
     throw new Response("Form not found", { status: 404 });
-  }
+  } 
 
   return json({ form });
 };
