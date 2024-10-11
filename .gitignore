@@ -16,8 +16,6 @@ database.sqlite
 package-lock.json
 yarn.lock
 
-
-
 /extensions/*/dist
 
 # Ignore shopify files created during app dev
