@@ -14,7 +14,7 @@ RUN NODE_OPTIONS=--max-old-space-size=4096 npm install --legacy-peer-deps
 COPY . .
 
 RUN npm run build
-RUN npx prisma migrate deploy
+RUN npx prisma migrate dev
 
 EXPOSE 5000
 
