@@ -38,6 +38,7 @@ export const action = async ({ request, params }) => {
       discountValue: formData.get("discountValue"),
     };
 
+    
     const form = await getCustomFormById(formId);
     const { discountType, discountValue } = form
     if(discountType !== updatedForm.discountType || discountValue !== updatedForm.discountValue){
