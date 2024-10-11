@@ -38,13 +38,13 @@ export const action = async ({ request, params }) => {
       discountValue: formData.get("discountValue"),
     };
 
-    
+
     const form = await getCustomFormById(formId);
     const { discountType, discountValue } = form
     if(discountType !== updatedForm.discountType || discountValue !== updatedForm.discountValue){
       await updateDiscountMutation(admin, form, updatedForm)
     }
-
+   console.log('check');
     await updateCustomForm(formId, updatedForm);
     return redirect("/app");
   } catch (error) {
