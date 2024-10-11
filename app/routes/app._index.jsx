@@ -1,158 +1,193 @@
-import { useEffect } from "react";
-import { json } from "@remix-run/node";
-import { useFetcher, useLoaderData } from "@remix-run/react";
+import { json, redirect } from "@remix-run/node";
+import { useLoaderData, useFetcher, Link } from "@remix-run/react";
 import {
   Page,
   Layout,
   Text,
   Card,
-  Button,
   BlockStack,
-  Box,
-  List,
-  Link,
-  InlineStack,
-  TextField,
+  Icon,
+  Popover,
+  ActionList,
+  Button,
+  Modal,
+  Toast,
+  Frame 
 } from "@shopify/polaris";
-import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
+import { MenuVerticalIcon, ClipboardIcon } from "@shopify/polaris-icons"; 
 import { authenticate } from "../shopify.server";
-import { getCustomForms } from "../db.server";
+import { getCustomForms, deleteCustomForm } from "../db.server";
+import { useState } from "react";
 
 export const loader = async ({ request }) => {
-  await authenticate.admin(request);
+  const authHeader = await authenticate.admin(request);
+  if (!authHeader) {
+    return redirect("/auth");
+  }
+  const shop = authHeader.session.shop
   const forms = await getCustomForms();
-  console.log("Loaded forms:", forms); // Debugging log
-  return json({ forms });
+  return json({ forms, shop });
 };
 
 export const action = async ({ request }) => {
-  const { admin } = await authenticate.admin(request);
-  const color = ["Red", "Orange", "Yellow", "Green"][
-    Math.floor(Math.random() * 4)
-  ];
-  const response = await admin.graphql(
-    `#graphql
-      mutation populateProduct($input: ProductInput!) {
-        productCreate(input: $input) {
-          product {
-            id
-            title
-            handle
-            status
-            variants(first: 10) {
-              edges {
-                node {
-                  id
-                  price
-                  barcode
-                  createdAt
-                }
-              }
-            }
-          }
-        }
-      }`,
-    {
-      variables: {
-        input: {
-          title: `${color} Snowboard`,
-        },
-      },
-    },
-  );
-  const responseJson = await response.json();
-  const product = responseJson.data.productCreate.product;
-  const variantId = product.variants.edges[0].node.id;
-  const variantResponse = await admin.graphql(
-    `#graphql
-    mutation shopifyRemixTemplateUpdateVariant($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
-      productVariantsBulkUpdate(productId: $productId, variants: $variants) {
-        productVariants {
-          id
-          price
-          barcode
-          createdAt
-        }
-      }
-    }`,
-    {
-      variables: {
-        productId: product.id,
-        variants: [{ id: variantId, price: "100.00" }],
-      },
-    },
-  );
-  const variantResponseJson = await variantResponse.json();
+  const authHeader = await authenticate.admin(request);
+  if (!authHeader) {
+    return json({ error: "Authentication failed" }, { status: 401 });
+  }
 
-  return json({
-    product: responseJson.data.productCreate.product,
-    variant: variantResponseJson.data.productVariantsBulkUpdate.productVariants,
-  });
+  const formData = await request.formData();
+  const action = formData.get("action");
+
+  if (action === "delete") {
+    const id = formData.get("id");
+    await deleteCustomForm(id);
+    return json({ success: true });
+  }
+
+  return json({ error: "Invalid action" }, { status: 400 });
 };
 
 export default function Index() {
+  const { forms, shop } = useLoaderData();
   const fetcher = useFetcher();
-  const { forms } = useLoaderData();
-  const shopify = useAppBridge();
-  const isLoading =
-    ["loading", "submitting"].includes(fetcher.state) &&
-    fetcher.formMethod === "POST";
-  const productId = fetcher.data?.product?.id.replace(
-    "gid://shopify/Product/",
-    "",
-  );
+  const [popoverActive, setPopoverActive] = useState(null);
+  const [modalActive, setModalActive] = useState(false);
+  const [formIdToDelete, setFormIdToDelete] = useState(null);
+  const [toastActive, setToastActive] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
 
-  useEffect(() => {
-    if (productId) {
-      shopify.toast.show("Product created");
-    }
-  }, [productId, shopify]);
-  const generateProduct = () => fetcher.submit({}, { method: "POST" });
+  const togglePopover = (id) => {
+    setPopoverActive((prev) => (prev === id ? null : id));
+  };
+
+  const handleDelete = (id) => {
+    setFormIdToDelete(id);
+    setModalActive(true);
+  };
+
+  const confirmDelete = () => {
+    fetcher.submit({ action: "delete", id: formIdToDelete }, { method: "post" });
+    setModalActive(false);
+  };
+
+  const cancelDelete = () => {
+    setModalActive(false);
+  };
+
+  const copyToClipboard = (id) => {
+    navigator.clipboard.writeText(id).then(() => {
+      setToastMessage(`Copied Snippet ID: ${id}`);
+      setToastActive(true);
+    }).catch((err) => {
+      console.error('Failed to copy: ', err);
+    });
+  };
 
   return (
-    <Page>
-      <TitleBar title="Remix app template">
-        <button variant="primary" onClick={generateProduct}>
-          Generate a product
-        </button>
-      </TitleBar>
-      <BlockStack gap="500">
-        <Layout>
-          <Layout.Section>
-            <Card>
-              <BlockStack gap="500">
-                <BlockStack gap="200">
-                  <Text as="h2" variant="headingMd">
-                    Create Custom Signup Form
-                  </Text>
-                  <fetcher.Form method="post">
-                    <TextField label="Form Title" name="title" />
-                    <TextField label="Form Description" name="description" />
-                    <TextField label="Form Input Heading" name="inputHeading" />
-                    <TextField label="Form Input Placeholder" name="inputPlaceholder" />
-                    <TextField label="Form Submit Button Text" name="submitButtonText" />
-                    <TextField label="Form Custom CSS" name="customCss" multiline />
-                    <TextField label="Coupon Prefix" name="couponPrefix" />
-                    <TextField label="Coupon Postfix" name="couponPostfix" />
-                    <Button submit>Save Form</Button>
-                  </fetcher.Form>
+    <Frame>
+      <Page>
+        <div style={{ margin: "15px 0", borderRadius: "10px", overflow: "hidden", backgroundColor: "#fff", padding: "10px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+            <Text variant="headingLg" style={{ flex: 1, textAlign: "center" }}>
+              Atlas Headrest Affiliate App
+            </Text>
+            <Button variant="primary" style={{ marginLeft: "10px" }} url="/app/forms/new">
+              Create New Form
+            </Button>
+          </div>
+        </div>
+
+        <BlockStack gap="500">
+          <Layout>
+            <Layout.Section>
+              <Card sectioned>
+                <BlockStack gap="200" >
+                  <Text as="h3" variant="headingLg">Existing Forms</Text>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "20px" }}>
+                    {forms.map((form) => (
+                      <Card key={form.id} sectioned>
+                        <BlockStack gap="200">
+                          <div style={{ position: "absolute", top: "10px", right: "10px" }}>
+                            <Popover
+                              active={popoverActive === form.id}
+                              activator={
+                                <Button
+                                  onClick={() => togglePopover(form.id)}
+                                  plain
+                                  icon={MenuVerticalIcon}
+                                />
+                              }
+                              onClose={() => setPopoverActive(null)}
+                            >
+                              <ActionList
+                                items={[
+                                  {
+                                    content: "Edit",
+                                    url: `/app/forms/${form.id}/edit`,
+                                  },
+                                  {
+                                    content: "Delete",
+                                    destructive: true,
+                                    onAction: () => handleDelete(form.id),
+                                  },
+                                ]}
+                              />
+                            </Popover>
+                            <div style={{margin: "5px 0"}}>
+                            <Button
+                              plain
+                              icon={ClipboardIcon}
+                              tone="base"
+                              onClick={() => copyToClipboard(`${shop}/pages/affiliate?af=${form.id}`)}
+                              style={{ cursor: 'pointer' }}
+                              aria-label={`Copy ID: ${form.id}`}
+                            />
+                            </div>
+                          </div>
+                          <div style={{width: "90%",minHeight:"80px"}} >
+                            <Text as="h4" variant="headingMd">{form.title}</Text>
+                          <Text as="p">{form.description}</Text>
+                          </div>
+                        </BlockStack> 
+                      </Card>
+                    ))}
+                  </div>
                 </BlockStack>
-                <BlockStack gap="200">
-                  <Text as="h3" variant="headingMd">
-                    Existing Forms
-                  </Text>
-                  {forms.map((form) => (
-                    <Card key={form.id}>
-                      <Text as="h4" variant="headingSm">{form.title}</Text>
-                      <Text as="p">{form.description}</Text>
-                    </Card>
-                  ))}
-                </BlockStack>
-              </BlockStack>
-            </Card>
-          </Layout.Section>
-        </Layout>
-      </BlockStack>
-    </Page>
+              </Card>
+            </Layout.Section>
+          </Layout>
+        </BlockStack>
+
+        {/* Toast Notification */}
+        {toastActive && (
+          <Toast
+            content={toastMessage}
+            onDismiss={() => setToastActive(false)}
+            duration={3000}
+          />
+        )}
+
+        {/* Modal for confirming delete action */}
+        <Modal
+          open={modalActive}
+          onClose={cancelDelete}
+          title="Confirm Delete"
+          primaryAction={{
+            content: "Delete",
+            onAction: confirmDelete,
+          }}
+          secondaryActions={[
+            {
+              content: "Cancel",
+              onAction: cancelDelete,
+            },
+          ]}
+        >
+          <Modal.Section>
+            <Text>Are you sure you want to delete this form?</Text>
+          </Modal.Section>
+        </Modal>
+      </Page>
+    </Frame>
   );
 }

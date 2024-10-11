@@ -1,20 +1,21 @@
 FROM node:18-alpine
 
-EXPOSE 3000
-
 WORKDIR /app
 
-ENV NODE_ENV=production
+# Add cache-busting argument for node_modules layer
+ARG CACHEBUST=1
+ENV CACHEBUST=${CACHEBUST}
 
-COPY package.json package-lock.json* ./
+COPY package*.json ./
 
-RUN npm ci --omit=dev && npm cache clean --force
-# Remove CLI packages since we don't need them in production by default.
-# Remove this line if you want to run CLI commands in your container.
-RUN npm remove @shopify/cli
+RUN NODE_OPTIONS=--max-old-space-size=4096 npm install --legacy-peer-deps
 
+# Copy the rest of the app
 COPY . .
 
 RUN npm run build
+RUN npx prisma migrate deploy
 
-CMD ["npm", "run", "docker-start"]
+EXPOSE 5000
+
+CMD ["npm", "run", "start"]

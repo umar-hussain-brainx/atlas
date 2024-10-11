@@ -17,4 +17,15 @@ module.exports = {
   serverModuleFormat: "cjs",
   dev: { port: process.env.HMR_SERVER_PORT || 8002 },
   future: {},
+  serverDependenciesToBundle: [
+    /^remix-utils.*/
+  ],
+  routes(defineRoutes) {
+    return defineRoutes((route) => {
+      route("/app/atlas", "routes/api.atlas.jsx");
+      route("/app/atlas/submitForm", "routes/api.atlas.submitForm.jsx");
+    });
+  }
+
+
 };
