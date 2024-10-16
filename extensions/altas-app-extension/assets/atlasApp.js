@@ -60,40 +60,34 @@ async function fetchFormData(formId) {
       // Display coupon code after form submission
       const couponCode = result.couponCode;
 
-      function handleCouponCode(couponCode) {
+    async  function handleCouponCode(couponCode) {
         const couponDiv = document.querySelector('.atlasAppTrigger');
         const imageElement = couponDiv.querySelector('img');
         const formElement = couponDiv.querySelector('form');
-      
+        const FormDescription = formElement.querySelector('p').textContent;
         // Remove the form if it exists
         if (formElement) {
           formElement.remove();
         }
       
         if (couponCode) {
+          console.log(couponCode)
+          await fetch(`/discount/${couponCode}`);
+        
           const buttonHTML = `
             <div>
               <h2>THANKS FOR SIGNING UP!</h2>
-              <p>Use Code for 20% off your first order.</p>
+              <p> ${FormDescription}</p>
               <button role="button" id="copyButton" aria-label="Copy coupon code" 
-                class="needsclick go4024032121 kl-private-reset-css-Xuajs1" 
-                style="position: relative; display: flex; flex-direction: row; align-items: center;
-                padding: 25px; justify-content: center; background: rgba(255, 255, 255, 0);
-                border-radius: 4px; border: 4px dashed rgb(0, 0, 0); color: rgb(0, 0, 0); 
-                line-height: 1; text-align: center; word-break: break-word; cursor: pointer;
-                width: 100%;">
-                
-                <div class="needsclick kl-private-reset-css-Xuajs1" 
-                  style="padding: 10px; font-family: Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', monospace; 
-                  font-size: 24px; font-weight: 700;">
+                class="needsclick go4024032121 kl-private-reset-css-Xuajs1">
+                <div class="needsclick xuajs1">
                   ${couponCode}
                 </div>
-
-                <svg id="copyIcon" class="needsclick  kl-private-reset-css-Xuajs1" style="color: rgb(0, 0, 0); height: 32px; width: 32px;cursor: pointer; flex-shrink: 0;"><svg width="32" height="33" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M3.602 1.1a3 3 0 0 0-3 3v18.4a3 3 0 0 0 3 3H8v-2H3.602a1 1 0 0 1-1-1V4.1a1 1 0 0 1 1-1h15.2a1 1 0 0 1 1 1v1.2h2V4.1a3 3 0 0 0-3-3h-15.2Z" fill="currentColor"></path><rect x="11.199" y="8.5" width="19.2" height="22.4" rx="2" stroke="currentColor" stroke-width="2"></rect></svg></svg>
+                <svg id="copyIcon" class="needsclick  kl-private-reset-css-Xuajs1"><svg width="32" height="33" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M3.602 1.1a3 3 0 0 0-3 3v18.4a3 3 0 0 0 3 3H8v-2H3.602a1 1 0 0 1-1-1V4.1a1 1 0 0 1 1-1h15.2a1 1 0 0 1 1 1v1.2h2V4.1a3 3 0 0 0-3-3h-15.2Z" fill="currentColor"></path><rect x="11.199" y="8.5" width="19.2" height="22.4" rx="2" stroke="currentColor" stroke-width="2"></rect></svg></svg>
               </button>
             </div>
           `;
-      
+       
           // Insert the button into the coupon div
           if (imageElement) {
             imageElement.insertAdjacentHTML('afterend', buttonHTML);

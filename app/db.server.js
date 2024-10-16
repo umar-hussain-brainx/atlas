@@ -107,7 +107,7 @@ export async function createDiscountCodeWithSegment(admin, newForm) {
       variables: {
         basicCodeDiscount: {
           title: `${newForm.title}`,
-          code: `${newForm.couponPrefix}${newForm.couponPostfix}`,
+          code: `${newForm.couponPrefix}${newForm.id}${newForm.couponPostfix}`,
           startsAt: new Date().toISOString(), // Set to current date/time
           customerSelection: {
             all: true,

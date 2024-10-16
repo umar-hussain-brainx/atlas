@@ -11,6 +11,7 @@ import {
   TextField,
   Select,
   FormLayout,
+  Modal,   // Import Modal component
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
@@ -98,6 +99,7 @@ export default function NewForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [validationError, setValidationError] = useState(null); // State for validation errors
+  const [showModal, setShowModal] = useState(false); // State for showing modal
 
   // Handle form field changes
   const handleChange = (field) => (value) => {
@@ -110,10 +112,35 @@ export default function NewForm() {
     }
   };
 
-  // Handle form submission
+  // Handle form submission with validation
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Required fields except customCss
+    const requiredFields = [
+      "title",
+      "description",
+      "inputHeading",
+      "submitButtonText",
+      "couponPrefix",
+      "couponPostfix",
+      "discountType",
+      "discountValue",
+    ];
+
+    // Validate required fields
+    for (const field of requiredFields) {
+      if (!formState[field]) {
+        setValidationError(`${field} is required`);
+        setShowModal(true); // Show modal popup with validation error
+        return; // Stop form submission if validation fails
+      }
+    }
+
+    // Reset validation error before submitting
+    setValidationError(null);
+
+    setIsSubmitting(true);
     try {
       await fetcher.submit(formState, { method: "post" });
     } catch (error) {
@@ -164,7 +191,6 @@ export default function NewForm() {
           <Layout.Section>
             <Card sectioned>
               {errorMessage && <Text color="critical">{errorMessage}</Text>}
-              {validationError && <Text color="critical">{validationError}</Text>}
               <form onSubmit={handleSubmit}>
                 <FormLayout>
                   <FormLayout.Group>
@@ -172,11 +198,16 @@ export default function NewForm() {
                       label="Form Title"
                       value={formState.title}
                       onChange={handleChange("title")}
+                      required
                     />
+                        </FormLayout.Group>
+                        <FormLayout.Group>
                     <TextField
                       label="Form Description"
                       value={formState.description}
                       onChange={handleChange("description")}
+                      required
+                      multiline={4}
                     />
                   </FormLayout.Group>
 
@@ -190,6 +221,7 @@ export default function NewForm() {
                       label="Submit Button Text"
                       value={formState.submitButtonText}
                       onChange={handleChange("submitButtonText")}
+                      required
                     />
                   </FormLayout.Group>
 
@@ -207,11 +239,13 @@ export default function NewForm() {
                       label="Coupon Prefix"
                       value={formState.couponPrefix}
                       onChange={handleChange("couponPrefix")}
+                      required
                     />
                     <TextField
                       label="Coupon Postfix"
                       value={formState.couponPostfix}
                       onChange={handleChange("couponPostfix")}
+                      required
                     />
                   </FormLayout.Group>
 
@@ -222,30 +256,31 @@ export default function NewForm() {
                       options={discountTypeOptions}
                       value={formState.discountType}
                       onChange={handleChange("discountType")}
+                      required
                     />
                   </FormLayout.Group>
 
                   {/* Conditional Input for Discount Value */}
-    
-              {formState.discountType && (
-                <FormLayout.Group>
-                  <TextField
-                    label={
-                      formState.discountType === "fixed"
-                        ? "Discount Amount (Fixed)"
-                        : "Discount Percentage"
-                    }
-                    value={formState.discountValue}
-                    min="1"
-                    max="1000"
-                    onChange={handleChange("discountValue")}
-                    type="number"
-                    prefix={
-                      formState.discountType === "percentage" ? "%" : "$"
-                    }
-                  />
-                </FormLayout.Group>
-              )}
+                  {formState.discountType && (
+                    <FormLayout.Group>
+                      <TextField
+                        label={
+                          formState.discountType === "fixed"
+                            ? "Discount Amount (Fixed)"
+                            : "Discount Percentage"
+                        }
+                        value={formState.discountValue}
+                        min="1"
+                        max="1000"
+                        required
+                        onChange={handleChange("discountValue")}
+                        type="number"
+                        prefix={
+                          formState.discountType === "percentage" ? "%" : "$"
+                        }
+                      />
+                    </FormLayout.Group>
+                  )}
 
                   <Button variant="primary" submit disabled={isSubmitting}>
                     {isSubmitting ? "Creating..." : "Create Form"}
@@ -256,6 +291,25 @@ export default function NewForm() {
           </Layout.Section>
         </Layout>
       </BlockStack>
+
+      {/* Modal for validation error */}
+      {validationError && (
+        <Modal
+          open={showModal}
+          onClose={() => setShowModal(false)} // Close modal handler
+          title="Validation Error"
+          primaryAction={{
+            content: "Close",
+            onAction: () => setShowModal(false), // Close modal on button click
+          }}
+        >
+          <Modal.Section>
+          <Text style={{ textTransform: "capitalize" }}>
+            <strong>{validationError}</strong>
+          </Text>
+          </Modal.Section>
+        </Modal>
+      )}
     </Page>
   );
 }
