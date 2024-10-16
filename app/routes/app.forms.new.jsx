@@ -21,6 +21,7 @@ import { v4 as uuidv4 } from "uuid";
 // Loader for ensuring user authentication
 export const loader = async ({ request }) => {
   const authHeader = await authenticate.admin(request);
+  
   if (!authHeader) {
     // If no valid session, redirect to authentication
     return redirect("/auth");
