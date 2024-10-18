@@ -6,7 +6,7 @@ import {
 } from "@shopify/shopify-app-remix/server";
 import {MongoDBSessionStorage} from '@shopify/shopify-app-session-storage-mongodb';
 import { restResources } from "@shopify/shopify-api/rest/admin/2024-07";
-import prisma from "./db.server";
+
 const { MONGODB_URL, MONGODB_DATABASE } = process.env;
 
 const shopify = shopifyApp({

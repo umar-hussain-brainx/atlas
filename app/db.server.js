@@ -184,7 +184,7 @@ export async function createCustomer({ email, shopifyCustomerId, shop, formId })
   if (formId) {
     await prisma.formCustomer.create({
       data: {
-        customerId: customer.customer_id,
+        customerId: customer.id,
         customFormId: formId,
       },
     });
