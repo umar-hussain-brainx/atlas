@@ -76,7 +76,7 @@ export default function Index() {
 
   const copyToClipboard = (id) => {
     navigator.clipboard.writeText(id).then(() => {
-      setToastMessage(`Copied Snippet ID: ${id}`);
+      setToastMessage(`Copied URL: ${id}`);
       setToastActive(true);
     }).catch((err) => {
       console.error('Failed to copy: ', err);
@@ -145,7 +145,7 @@ export default function Index() {
                                   tone="base"
                                   onClick={() => copyToClipboard(`${shop}/pages/affiliate?af=${form.id}`)}
                                   style={{ cursor: 'pointer' }}
-                                  aria-label={`Copy ID: ${form.id}`}
+                                  aria-label={`Copy Url: ${form.id}`}
                                 />
                               </div>
                             </div>

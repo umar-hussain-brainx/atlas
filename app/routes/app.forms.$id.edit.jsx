@@ -127,6 +127,7 @@ export default function EditForm() {
                     value={form.title}
                     onChange={(value) => handleChange(value, "title")}
                     autoComplete="off"
+                    placeholder="Enter form title"
                   />
                 </FormLayout.Group>
 
@@ -138,6 +139,7 @@ export default function EditForm() {
                     onChange={(value) => handleChange(value, "description")}
                     autoComplete="off"
                     multiline={4}
+                    placeholder="Enter form description"
                   />
                 </FormLayout.Group>
 
@@ -148,6 +150,7 @@ export default function EditForm() {
                     value={form.inputHeading}
                     onChange={(value) => handleChange(value, "inputHeading")}
                     autoComplete="off"
+                    placeholder="Enter input heading"
                   />
                   <TextField
                     label="Submit Button Text"
@@ -155,6 +158,7 @@ export default function EditForm() {
                     value={form.submitButtonText}
                     onChange={(value) => handleChange(value, "submitButtonText")}
                     autoComplete="off"
+                    placeholder="Enter submit button text"
                   />
                 </FormLayout.Group>
 
@@ -166,6 +170,7 @@ export default function EditForm() {
                     onChange={(value) => handleChange(value, "customCss")}
                     autoComplete="off"
                     multiline={4}
+                    placeholder="Enter custom CSS for the form"
                   />
                 </FormLayout.Group>
 
@@ -176,6 +181,7 @@ export default function EditForm() {
                     value={form.couponPrefix}
                     onChange={(value) => handleChange(value, "couponPrefix")}
                     autoComplete="off"
+                    placeholder="Enter coupon prefix"
                   />
                   <TextField
                     label="Coupon Postfix"
@@ -183,6 +189,7 @@ export default function EditForm() {
                     value={form.couponPostfix}
                     onChange={(value) => handleChange(value, "couponPostfix")}
                     autoComplete="off"
+                    placeholder="Enter coupon postfix"
                   />
                 </FormLayout.Group>
 
@@ -193,6 +200,7 @@ export default function EditForm() {
                     options={discountTypeOptions}
                     value={form.discountType}
                     onChange={(value) => handleChange(value, "discountType")}
+                    placeholder="Select discount type"
                   />
                 </FormLayout.Group>
 
@@ -212,6 +220,7 @@ export default function EditForm() {
                       autoComplete="off"
                       type="number"
                       prefix={form.discountType === "percentage" ? "%" : "$"}
+                      placeholder={`Enter discount ${form.discountType === "fixed" ? "amount" : "percentage"}`}
                     />
                   </FormLayout.Group>
                 )}

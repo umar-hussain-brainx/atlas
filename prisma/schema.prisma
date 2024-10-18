@@ -1,20 +1,17 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// This is your Prisma schema file for MongoDB
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
   provider = "prisma-client-js"
 }
 
-// Note that some adapters may set a maximum length for the String type by default, please ensure your strings are long
-// enough when changing adapters.
-// See https://www.prisma.io/docs/orm/reference/prisma-schema-reference#string for more information
 datasource db {
-  provider = "sqlite"
-  url      = "file:dev.sqlite"
+  provider = "mongodb"
+  url      = env("MONGODB_URI")
 }
 
 model Session {
-  id            String    @id
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
   shop          String
   state         String
   isOnline      Boolean   @default(false)
@@ -32,30 +29,38 @@ model Session {
 }
 
 model CustomForm {
-  id                String     @id @default(uuid())
-  shop        String
-  title             String
-  description       String
-  inputHeading      String
-  submitButtonText  String
-  customCss         String
-  couponPrefix      String
-  couponPostfix     String
-  discountType      String?
-  discountValue     String?
-  discountId        String?    // New field
-  segmentId         String?    // New field
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
-  customers         Customer[] 
+  id                 String    @id @default(auto()) @map("_id") @db.ObjectId
+  shop               String
+  title              String
+  description        String
+  inputHeading       String
+  submitButtonText   String
+  customCss          String
+  couponPrefix       String
+  couponPostfix      String
+  discountType       String?
+  discountValue      String?
+  discountId         String?    // New field
+  segmentId          String?    // New field
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+  formCustomers      FormCustomer[]  // Explicit relation to FormCustomer
 }
 
 model Customer {
-  id                String       @id @default(uuid())
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
   email             String
   shopifyCustomerId String
   shop              String
-  customForms       CustomForm[]
+  formCustomers     FormCustomer[]  // Explicit relation to FormCustomer
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
+}
+
+model FormCustomer {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  customForm   CustomForm @relation(fields: [customFormId], references: [id])  // Correct reference to `id`
+  customFormId String     @db.ObjectId
+  customer     Customer   @relation(fields: [customerId], references: [id])  // Correct reference to `id`
+  customerId   String     @db.ObjectId
 }

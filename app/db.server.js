@@ -106,7 +106,7 @@ export async function createDiscountCodeWithSegment(admin, newForm) {
     const discountCodeResponse = await admin.graphql(createDiscountCodeMutation, {
       variables: {
         basicCodeDiscount: {
-          title: `${newForm.title}`,
+          title: `${newForm.title}-${newForm.id}`,
           code: `${newForm.couponPrefix}${newForm.id}${newForm.couponPostfix}`,
           startsAt: new Date().toISOString(), // Set to current date/time
           customerSelection: {
@@ -146,56 +146,69 @@ export async function findCustomerByEmailAndShop(email, shop) {
 }
 
 export async function findCustomerByEmailShopAndFormId(email, shop, formId) {
-  return prisma.customer.findFirst({
+  return prisma.formCustomer.findFirst({
     where: {
-      email: email,
-      shop: shop,
-      customForms: {
-        some: {
-          id: formId
-        }
-      }
+      customer: {
+        email: email,
+        shop: shop,
+      },
+      customFormId: formId,
+    },
+    include: {
+      customer: true,
+      customForm: true,
     },
   });
 }
 
+
 export async function addCustomerToForm(customerId, formId) {
-  return prisma.customer.update({
-    where: { id: customerId },
+  return prisma.formCustomer.create({
     data: {
-      customForms: {
-        connect: { id: formId }
-      }
-    }
-  });
-}
-
-export async function createCustomer({ email, shopifyCustomerId, shop, formId }) {
-  const customerData = {
-    email,
-    shopifyCustomerId,
-    shop,
-  };
-
-  if (formId) {
-    customerData.customForms = {
-      connect: { id: formId }
-    };
-  }
-
-  return prisma.customer.create({
-    data: customerData,
-  });
-}
-
-export async function findCustomerByEmailAndFormId(email, formId) {
-  return prisma.customer.findFirst({
-    where: {
-      email: email,
+      customerId: customerId,
       customFormId: formId,
     },
   });
 }
+
+
+export async function createCustomer({ email, shopifyCustomerId, shop, formId }) {
+  const customer = await prisma.customer.create({
+    data: {
+      email,
+      shopifyCustomerId,
+      shop,
+    },
+  });
+
+  if (formId) {
+    await prisma.formCustomer.create({
+      data: {
+        customerId: customer.customer_id,
+        customFormId: formId,
+      },
+    });
+  }
+
+  return customer;
+}
+
+
+export async function findCustomerByEmailAndFormId(email, formId) {
+  return prisma.formCustomer.findFirst({
+    where: {
+      customer: {
+        email: email,
+      },
+      customFormId: formId,
+    },
+    include: {
+      customer: true,
+      customForm: true,
+    },
+  });
+}
+
 
 export async function updateSegmentId(formId, segmentId) {
   try {

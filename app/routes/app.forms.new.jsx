@@ -11,17 +11,16 @@ import {
   TextField,
   Select,
   FormLayout,
-  Modal,   // Import Modal component
+  Modal, // Import Modal component
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 import { createCustomForm, createDiscountCodeWithSegment } from "../db.server";
-import { v4 as uuidv4 } from "uuid";
 
 // Loader for ensuring user authentication
 export const loader = async ({ request }) => {
   const authHeader = await authenticate.admin(request);
-  
+
   if (!authHeader) {
     // If no valid session, redirect to authentication
     return redirect("/auth");
@@ -47,19 +46,18 @@ export const action = async ({ request }) => {
     "discountValue",
   ];
 
-   // Collect form data
-   const data = Object.fromEntries(
+  // Collect form data
+  const data = Object.fromEntries(
     formFields.map((field) => [field, formData.get(field)])
   );
 
   // Convert empty strings to null
-  Object.keys(data).forEach(key => {
+  Object.keys(data).forEach((key) => {
     if (data[key] === "") {
       data[key] = " ";
     }
   });
-  const uuid = uuidv4();
-  data.id = uuid; // Add UUID to the form data
+  
   data.shop = shop;
 
   try {
@@ -200,15 +198,18 @@ export default function NewForm() {
                       value={formState.title}
                       onChange={handleChange("title")}
                       required
+                      placeholder="Enter the form title"
                     />
-                        </FormLayout.Group>
-                        <FormLayout.Group>
+                  </FormLayout.Group>
+
+                  <FormLayout.Group>
                     <TextField
                       label="Form Description"
                       value={formState.description}
                       onChange={handleChange("description")}
                       required
                       multiline={4}
+                      placeholder="Enter the form description"
                     />
                   </FormLayout.Group>
 
@@ -217,12 +218,14 @@ export default function NewForm() {
                       label="Input Heading"
                       value={formState.inputHeading}
                       onChange={handleChange("inputHeading")}
+                      placeholder="Enter input text"
                     />
                     <TextField
                       label="Submit Button Text"
                       value={formState.submitButtonText}
                       onChange={handleChange("submitButtonText")}
                       required
+                      placeholder="Enter submit button text"
                     />
                   </FormLayout.Group>
 
@@ -232,6 +235,7 @@ export default function NewForm() {
                       value={formState.customCss}
                       onChange={handleChange("customCss")}
                       multiline={4}
+                      placeholder="Enter custom CSS"
                     />
                   </FormLayout.Group>
 
@@ -241,12 +245,14 @@ export default function NewForm() {
                       value={formState.couponPrefix}
                       onChange={handleChange("couponPrefix")}
                       required
+                      placeholder="Enter coupon prefix"
                     />
                     <TextField
                       label="Coupon Postfix"
                       value={formState.couponPostfix}
                       onChange={handleChange("couponPostfix")}
                       required
+                      placeholder="Enter coupon postfix"
                     />
                   </FormLayout.Group>
 
@@ -279,6 +285,11 @@ export default function NewForm() {
                         prefix={
                           formState.discountType === "percentage" ? "%" : "$"
                         }
+                        placeholder={
+                          formState.discountType === "fixed"
+                            ? "Enter discount amount"
+                            : "Enter discount percentage"
+                        }
                       />
                     </FormLayout.Group>
                   )}
@@ -305,9 +316,9 @@ export default function NewForm() {
           }}
         >
           <Modal.Section>
-          <Text style={{ textTransform: "capitalize" }}>
-            <strong>{validationError}</strong>
-          </Text>
+            <Text style={{ textTransform: "capitalize" }}>
+              <strong>{validationError}</strong>
+            </Text>
           </Modal.Section>
         </Modal>
       )}

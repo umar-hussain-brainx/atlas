@@ -4,9 +4,10 @@ import {
   AppDistribution,
   shopifyApp,
 } from "@shopify/shopify-app-remix/server";
-import { PrismaSessionStorage } from "@shopify/shopify-app-session-storage-prisma";
+import {MongoDBSessionStorage} from '@shopify/shopify-app-session-storage-mongodb';
 import { restResources } from "@shopify/shopify-api/rest/admin/2024-07";
 import prisma from "./db.server";
+const { MONGODB_URL, MONGODB_DATABASE } = process.env;
 
 const shopify = shopifyApp({
   apiKey: process.env.SHOPIFY_API_KEY,
@@ -15,7 +16,10 @@ const shopify = shopifyApp({
   scopes: process.env.SCOPES?.split(","),
   appUrl: process.env.SHOPIFY_APP_URL || "",
   authPathPrefix: "/auth",
-  sessionStorage: new PrismaSessionStorage(prisma),
+  sessionStorage: new MongoDBSessionStorage(
+    MONGODB_URL,
+    MONGODB_DATABASE,
+  ),
   distribution: AppDistribution.AppStore,
   restResources,
   future: {
