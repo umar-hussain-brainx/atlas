@@ -59,8 +59,8 @@ model Customer {
 
 model FormCustomer {
   id           String     @id @default(auto()) @map("_id") @db.ObjectId
-  customForm   CustomForm @relation(fields: [customFormId], references: [id])  // Correct reference to `id`
+  customForm   CustomForm @relation(fields: [customFormId], references: [id], onDelete: Cascade)  // Added onDelete: Cascade
   customFormId String     @db.ObjectId
-  customer     Customer   @relation(fields: [customerId], references: [id])  // Correct reference to `id`
+  customer     Customer   @relation(fields: [customerId], references: [id])  
   customerId   String     @db.ObjectId
 }
