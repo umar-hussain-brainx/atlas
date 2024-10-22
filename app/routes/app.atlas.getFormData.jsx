@@ -20,8 +20,6 @@ export const loader = async ({ request }) => {
     });
   }
 
-  console.log("loader")
-
   const { admin } = await authenticate.public.appProxy(request);
   if (!admin) {
     return new Response(JSON.stringify({ message: 'Unauthorized' }), {
