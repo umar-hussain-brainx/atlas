@@ -11,7 +11,7 @@ async function fetchFormData(formId) {
             },
             };
       
-        const response = await fetch(`https://${shop}/apps/atlas-proxy/getFormData?formId=${formId}`, requestOptions)
+        const response = await fetch(`/apps/atlas-proxy/getFormData?formId=${formId}`, requestOptions)
       
       if (!response.ok) {
         throw new Error('Failed to fetch form data');
@@ -41,7 +41,7 @@ async function fetchFormData(formId) {
     
     try {
 
-      const response = await fetch(`https://${shop}/apps/atlas-proxy/submitform`, {
+      const response = await fetch(`/apps/atlas-proxy/submitform`, {
         method: 'POST',
         redirect: "manual",
         headers: {
